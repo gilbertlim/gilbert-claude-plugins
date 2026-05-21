@@ -1,4 +1,4 @@
-# claude-skills
+# claude-plugins
 
 개인 Claude Code 스킬 모음. 스킬마다 플러그인 하나로 분리되어 있어, 원하는 스킬만 골라 설치할 수 있다.
 
@@ -9,8 +9,8 @@
 Claude Code에서:
 
 ```
-/plugin marketplace add gilbertlim/claude-skills
-/plugin install crafting-html-pages@claude-skills
+/plugin marketplace add gilbertlim/claude-plugins
+/plugin install crafting-html-pages@claude-plugins
 ```
 
 ## 플러그인 목록
