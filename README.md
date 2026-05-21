@@ -9,8 +9,8 @@
 Claude Code에서:
 
 ```
-/plugin marketplace add gilbertlim/claude-plugins
-/plugin install crafting-html-pages@gilbert-plugins
+/plugin marketplace add gilbertlim/gilbert-claude-plugins
+/plugin install crafting-html-pages@gilbert-claude-plugins
 ```
 
 ## 플러그인 목록
