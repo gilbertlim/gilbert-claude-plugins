@@ -1,0 +1,10 @@
+{
+  "name": "crafting-html-pages",
+  "description": "House rules for building HTML pages, web UI, and document-style HTML (PR/FAQ, proposals, reports).",
+  "version": "0.1.0",
+  "author": {
+    "name": "gilbert lim"
+  },
+  "license": "MIT",
+  "keywords": ["html", "web-ui", "document", "pr-faq", "skill", "claude-code"]
+}

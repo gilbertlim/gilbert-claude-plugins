@@ -1,0 +1,17 @@
+{
+  "name": "claude-skills",
+  "owner": {
+    "name": "gilbert lim"
+  },
+  "metadata": {
+    "description": "Personal Claude Code skills, one plugin per skill.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "crafting-html-pages",
+      "source": "./plugins/crafting-html-pages",
+      "description": "House rules for building HTML pages, web UI, and document-style HTML (PR/FAQ, proposals, reports)."
+    }
+  ]
+}
