@@ -4,7 +4,7 @@
     "name": "gilbert lim"
   },
   "metadata": {
-    "description": "Personal Claude Code skills, one plugin per skill.",
+    "description": "Personal Claude Code skills and mods, one plugin each.",
     "version": "0.1.0"
   },
   "plugins": [
@@ -12,6 +12,11 @@
       "name": "crafting-html-pages",
       "source": "./plugins/crafting-html-pages",
       "description": "House rules for building HTML pages, web UI, and document-style HTML (PR/FAQ, proposals, reports)."
+    },
+    {
+      "name": "worktree-board",
+      "source": "./plugins/worktree-board",
+      "description": "Status line and side pane for Orca worktrees and their agent sessions (needs Orca and orca-worktree-flow)."
     }
   ]
 }
