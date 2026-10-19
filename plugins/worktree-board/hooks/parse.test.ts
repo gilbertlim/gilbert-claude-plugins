@@ -54,7 +54,7 @@ test('진행: 돌면 in progress, 리뷰 중이면 reviewing, 커밋 있고 쉬�
 test('상태줄은 worktrees N(종류별 수) | need review M', () => {
   const b = { ...parseStatus(TABLE + COUNTS, ''),
     terminals: [{ path: '/u/orca/workspaces/shop-web/login-fix', title: '', state: 'working' }] }
-  expect(statusLine(b)).toBe('worktrees 2(1 done, 1 in progress) | need review 2')
+  expect(statusLine(b)).toBe('2 worktrees(1 done, 1 in progress) | 2 need review')
   expect(statusLine({ table: '', counts: {}, at: '', terminals: [], error: 'status.sh 없음' })).toBe('status.sh 없음')
 })
 

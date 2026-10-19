@@ -26,12 +26,12 @@ export const statusLine = (b: Board): string => {
   const list = parseWorktrees(b.table).map(w => ({ ...w, sessions: sessionsOf(w, b.terminals) }))
   const count = (p: string) => list.filter(w => progressOf(w) === p).length
   const kinds = ['done', 'in progress', 'reviewing', 'blocked'].filter(p => count(p)).map(p => `${count(p)} ${p}`)
-  const head = [`worktrees ${list.length}${kinds.length ? `(${kinds.join(', ')})` : ''}`]
+  const head = [`${list.length} ${list.length === 1 ? 'worktree' : 'worktrees'}${kinds.length ? `(${kinds.join(', ')})` : ''}`]
   const c = b.counts
   const tail: string[] = []
   // 리뷰를 안 받은 것과 판정 뒤에 커밋이 올라온 것을 합친다. 둘 다 리뷰를 돌려야 한다.
   const needReview = (c.review_none ?? 0) + (c.review_stale ?? 0)
-  if (needReview) tail.push(`need review ${needReview}`)
+  if (needReview) tail.push(`${needReview} need review`)
   return [head.join(', '), ...tail].join(' | ')
 }
 

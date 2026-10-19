@@ -34,7 +34,7 @@ Claude Code에서:
 
 Orca 로 띄운 워크트리와 그 안의 에이전트 세션이 어디까지 왔는지를 30초마다 보여 준다.
 
-- 상태줄: `worktrees 3(1 done, 2 in progress) | need review 2`
+- 상태줄: `3 worktrees(1 done, 2 in progress) | 2 need review`
 - `/worktree-board`: 오른쪽에 좁은 패널을 연다. 워크트리마다 레포, 브랜치, 커밋 수, 리뷰 차수, 터미널(세션)별 상태와 탭 제목
 - 진행 구분: 터미널이 돌거나 미커밋이 있으면 in progress, 리뷰어가 판정을 쓰는 중이면 reviewing, 승인이나 신뢰를 묻고 서 있으면 blocked, 커밋이 있고 다 쉬면 done
 - 리뷰 구분: 한 번도 안 받았거나 판정 뒤에 커밋이 올라왔으면 need review
