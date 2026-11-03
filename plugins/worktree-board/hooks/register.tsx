@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
 import type { Board } from '../types'
-import { parseStatus, parseTerminals, parseWorktrees, reviewLabel, screenState, sessionsOf, statusLine } from './parse'
+import { parseStatus, parseTerminals, parseWorktrees, reviewLabel, screenState, sessionsOf, stateIcon, statusLine, worktreeIcon } from './parse'
 
 const PANE = 'worktree-board'
 const TITLE = 'Orca 워크트리'
@@ -68,13 +68,13 @@ export const register: Register = on => {
           const states = sessions.map(x => x.state).join(', ')
           return (
             <Box flexDirection="column" marginTop={1}>
-              <Text bold>{w.repo}</Text>
+              <Text bold>{worktreeIcon(sessions)} {w.repo}</Text>
               <Text color="cyan" wrap="wrap">({w.name})</Text>
               <Text>commits {w.commits}{w.dirty !== '0' ? `, dirty ${w.dirty}` : ''}</Text>
               <Text color={w.review.includes('낡음') ? 'yellow' : undefined}>{reviewLabel(w.review)}</Text>
               <Text>terminals {sessions.length}{states ? ` (${states})` : ''}</Text>
               {sessions.map(x => (
-                <Text color={x.state === 'blocked' ? 'red' : x.state === 'working' ? 'green' : undefined} wrap="wrap">ㄴ [{x.state}] {x.title}</Text>
+                <Text color={x.state === 'blocked' ? 'red' : x.state === 'working' ? 'green' : undefined} wrap="wrap">ㄴ {stateIcon(x.state)} [{x.state}] {x.title}</Text>
               ))}
             </Box>
           )

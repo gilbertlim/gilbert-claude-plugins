@@ -1,6 +1,6 @@
 import { expect, test } from 'claude-code/testing'
 
-import { parseStatus, parseTerminals, parseWorktrees, progressOf, reviewLabel, screenState, sessionsOf, statusLine } from './parse'
+import { parseStatus, parseTerminals, parseWorktrees, progressOf, reviewLabel, screenState, sessionsOf, statusLine, worktreeIcon } from './parse'
 
 const TABLE = `워크트리                             커밋 미커밋 리뷰         터미널
 --------------------------------------------------------------------------------
@@ -54,8 +54,17 @@ test('진행: 돌면 in progress, 리뷰 중이면 reviewing, 커밋 있고 쉬�
 test('상태줄은 worktrees N(종류별 수) | need review M', () => {
   const b = { ...parseStatus(TABLE + COUNTS, ''),
     terminals: [{ path: '/u/orca/workspaces/shop-web/login-fix', title: '', state: 'working' }] }
-  expect(statusLine(b)).toBe('2 worktrees(1 done, 1 in progress) | 2 need review')
+  expect(statusLine(b)).toBe('🟢 2 worktrees(1 done, 1 in progress) | agents 1 working | 2 need review')
+  const idle = { ...b, terminals: [{ ...b.terminals[0]!, state: 'idle' }, { path: '/u/orca/workspaces/shop-api/add-cart', title: '', state: 'blocked' }] }
+  expect(statusLine(idle)).toBe('🔴 2 worktrees(1 done, 1 blocked) | agents 1 blocked, 1 idle | 2 need review')
   expect(statusLine({ table: '', counts: {}, at: '', terminals: [], error: 'status.sh 없음' })).toBe('status.sh 없음')
+})
+
+test('워크트리 아이콘은 막힘 > 돎 > 쉼 > 터미널 없음', () => {
+  expect(worktreeIcon([{ state: 'idle' }, { state: 'blocked' }, { state: 'working' }])).toBe('🔴')
+  expect(worktreeIcon([{ state: 'idle' }, { state: 'working' }])).toBe('🟢')
+  expect(worktreeIcon([{ state: 'idle' }])).toBe('⚪')
+  expect(worktreeIcon([])).toBe('⚫')
 })
 
 test('리뷰 칸을 영문 차수로 바꾼다', () => {
