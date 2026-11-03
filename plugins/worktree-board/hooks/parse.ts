@@ -92,7 +92,7 @@ export const screenState = (lines: string[]): string => {
 }
 
 // 패널 왼쪽에 붙여 훑어보게 한다. 워크트리는 막힘 > 돎 > 쉼 > 터미널 없음 순으로 하나를 고른다.
-const ICON: Record<string, string> = { blocked: '🔴', working: '🟢', idle: '⚪' }
+const ICON: Record<string, string> = { blocked: '🔴', working: '🟢', idle: '🔘' }
 export const stateIcon = (state: string): string => ICON[state] ?? '⚫'
 export const worktreeIcon = (sessions: { state: string }[]): string =>
   stateIcon(['blocked', 'working', 'idle'].find(s => sessions.some(x => x.state === s)) ?? '')

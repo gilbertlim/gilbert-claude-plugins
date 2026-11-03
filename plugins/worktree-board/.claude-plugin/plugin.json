@@ -1,7 +1,7 @@
 {
   "name": "worktree-board",
   "description": "Shows Orca worktrees and their agent sessions in a status line and a narrow side pane. Needs Orca and the orca-worktree-flow plugin.",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": {
     "name": "gilbert lim"
   },
