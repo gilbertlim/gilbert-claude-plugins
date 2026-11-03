@@ -63,7 +63,7 @@ test('상태줄은 worktrees N(종류별 수) | need review M', () => {
 test('워크트리 아이콘은 막힘 > 돎 > 쉼 > 터미널 없음', () => {
   expect(worktreeIcon([{ state: 'idle' }, { state: 'blocked' }, { state: 'working' }])).toBe('🔴')
   expect(worktreeIcon([{ state: 'idle' }, { state: 'working' }])).toBe('🟢')
-  expect(worktreeIcon([{ state: 'idle' }])).toBe('🔘')
+  expect(worktreeIcon([{ state: 'idle' }])).toBe('⏺')
   expect(worktreeIcon([])).toBe('⚫')
 })
 
