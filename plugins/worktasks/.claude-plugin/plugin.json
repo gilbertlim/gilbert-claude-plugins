@@ -1,7 +1,7 @@
 {
   "name": "worktasks",
   "description": "Shows this session's Orca tasks (working, waiting, held, done) and their wait alarms in the status line, a foldable band above the prompt and /worktasks. Needs Orca and the orca-worktree-flow plugin.",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": {
     "name": "gilbert lim"
   },

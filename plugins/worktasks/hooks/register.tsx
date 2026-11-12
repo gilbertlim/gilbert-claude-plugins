@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
 import type { Board, SessionTask, Wait } from '../types'
-import { alarmCount, applyAction, groupTasks, HELP, LABEL, parseDispatch, parseLand, parseWaits, rowLines, sessionDetail } from './tasks'
+import { alarmCount, applyAction, groupTasks, HELP, LABEL, parseDispatch, parseLand, parseWaits, rowLines, sameWorktree, sessionDetail } from './tasks'
 import { parseStatus, parseTerminals, parseWorktrees, screenState } from './parse'
 
 const EVERY_MS = 30_000
@@ -110,11 +110,11 @@ export const register: Register = on => {
     const ran = await next(e)
     if (!/(dispatch|land)\.sh/.test(e.command) || ran.deny !== undefined) return ran
     const out = (ran.result as { stdout?: string } | undefined)?.stdout ?? ''
-    const d = parseDispatch(e.command, out)
-    const l = parseLand(e.command, out)
-    if (d) await update($, tasks, list => (list.some(t => t.name === d.name) ? list : [...list, { ...d, isLanded: false, isHeld: false }]))
-    if (l) await update($, tasks, list => list.map(t => (t.name === l.name && t.repo === l.repo ? { ...t, isLanded: true } : t)))
-    if (d || l) void refresh($)
+    const ds = parseDispatch(e.command, out, await homeOf($))
+    const ls = parseLand(e.command, out)
+    if (ds.length) await update($, tasks, list => [...list, ...ds.filter(d => !list.some(t => t.repo === d.repo && t.name === d.name)).map(d => ({ ...d, isLanded: false, isHeld: false }))])
+    if (ls.length) await update($, tasks, list => list.map(t => (ls.some(l => t.repo === l.repo && sameWorktree(t, l.repo, l.name)) ? { ...t, isLanded: true } : t)))
+    if (ds.length || ls.length) void refresh($)
     return ran
   })
 

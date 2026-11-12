@@ -4,19 +4,34 @@ import { reviewLabel, sessionsOf } from './parse'
 // The worktrees this session dispatched are its tasks. Landed is done, a hold mark is held,
 // a running agent or reviewer is working, and the rest (finished, waiting on review, a decision or land) is waiting.
 
-// `dispatch.sh <repo> <name> <prompt>` and its `경로   <path>` output line. `--repos` only lists repos.
-export const parseDispatch = (command: string, stdout: string): Omit<SessionTask, 'isLanded' | 'isHeld'> | undefined => {
-  const m = command.match(/dispatch\.sh\s+(?!--)(\S+)\s+(\S+)\s+\S/)
-  const path = stdout.match(/^경로\s+(\S+)/m)?.[1]
-  if (!m || !path) return undefined
-  return { repo: m[1]!, name: m[2]!, path }
+// Inside an umbrella worktree dispatch prefixes the real name with `<umbrella repo>.<umbrella name>.`,
+// so a task named `add-cart` is the worktree `add-cart` or `<owner>.add-cart`.
+export const sameWorktree = (t: { repo: string; name: string }, repo: string, name: string) =>
+  t.repo === repo && (name === t.name || name.endsWith(`.${t.name}`))
+
+const repoName = (path: string) => path.match(/\/([^/]+)\/([^/]+)\/?$/)?.slice(1) ?? []
+const atPath = (t: { repo: string; name: string }, path: string) => {
+  const [repo = '', name = ''] = repoName(path)
+  return sameWorktree(t, repo, name)
+}
+
+// Every `dispatch.sh <repo> <name> <prompt>` in the command, paired in order with its `경로   <path>` line.
+// The line can be cut (`| tail -3`), so a missing one falls back to the bare name; matching uses sameWorktree anyway.
+// `--repos` only lists repos.
+export const parseDispatch = (command: string, stdout: string, home = ''): Omit<SessionTask, 'isLanded' | 'isHeld'>[] => {
+  const paths = [...stdout.matchAll(/^경로\s+(\S+)/gm)].map(m => m[1]!)
+  return [...command.matchAll(/dispatch\.sh\s+(?!--)(\S+)\s+(\S+)\s+\S/g)].map(m => {
+    const repo = m[1]!, name = m[2]!
+    const path = paths.find(p => atPath({ repo, name }, p)) ?? `${home}/orca/workspaces/${repo}/${name}`
+    return { repo, name, path }
+  })
 }
 
 // `land.sh <repo> <name>` counts once it removed the worktree; with KEEP=1 the push line is enough.
-export const parseLand = (command: string, stdout: string): { repo: string; name: string } | undefined => {
-  const m = command.match(/land\.sh\s+(\S+)\s+(\S+)/)
-  if (!m || !/워크트리를 지웠다|->\s+main/.test(stdout)) return undefined
-  return { repo: m[1]!, name: m[2]! }
+// Several lands can share one command (a loop), so every call counts once the output shows a push or removal.
+export const parseLand = (command: string, stdout: string): { repo: string; name: string }[] => {
+  if (!/워크트리를 지웠다|->\s+main/.test(stdout)) return []
+  return [...command.matchAll(/land\.sh\s+(\S+)\s+(\S+)/g)].map(m => ({ repo: m[1]!, name: m[2]! }))
 }
 
 // Wait alarms: running `orca-wait.sh done|stall <worktree>` watchers, from `ps -Ao pid=,command=`.
@@ -29,7 +44,7 @@ export const parseWaits = (ps: string): Wait[] =>
 export const stateOf = (t: SessionTask, list: Worktree[], terminals: Terminal[]): TaskState => {
   if (t.isLanded) return 'done'
   if (t.isHeld) return 'held'
-  const w = list.find(x => x.repo === t.repo && x.name === t.name)
+  const w = list.find(x => sameWorktree(t, x.repo, x.name))
   if (!w) return 'done'
   if (w.review.endsWith('중') || sessionsOf(w, terminals).some(x => x.state === 'working')) return 'working'
   return 'waiting'
@@ -53,8 +68,8 @@ export const groupTasks = (tasks: SessionTask[], list: Worktree[], terminals: Te
     rows: tasks
       .filter(t => stateOf(t, list, terminals) === state)
       .map(task => {
-        const worktree = list.find(x => x.repo === task.repo && x.name === task.name)
-        return { task, worktree, sessions: worktree ? sessionsOf(worktree, terminals) : [], waits: waits.filter(x => x.path === task.path) }
+        const worktree = list.find(x => sameWorktree(task, x.repo, x.name))
+        return { task, worktree, sessions: worktree ? sessionsOf(worktree, terminals) : [], waits: waits.filter(x => atPath(task, x.path)) }
       }),
   })).filter(g => g.rows.length > 0)
 
@@ -62,7 +77,7 @@ export const alarmCount = (groups: TaskGroup[]) => groups.reduce((n, g) => n + g
 
 // One task's detail lines, shared by the band and /worktasks.
 export const rowLines = (r: TaskRow): string[] => {
-  const out = [`worktree ${r.worktree ? r.task.path : r.task.isLanded ? 'removed (landed)' : 'missing'}`]
+  const out = [`worktree ${r.worktree ? `${r.worktree.repo}/${r.worktree.name}` : r.task.isLanded ? 'removed (landed)' : 'missing'}`]
   if (r.worktree) {
     const w = r.worktree
     out.push(`${w.commits} commits${w.dirty !== '0' ? `, ${w.dirty} uncommitted` : ''}, ${reviewLabel(w.review)}${w.lastCommit ? `, last: ${w.lastCommit}` : ''}`)
