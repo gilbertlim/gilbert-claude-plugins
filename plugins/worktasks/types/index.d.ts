@@ -19,7 +19,7 @@ export type SessionTask = { repo: string; name: string; path: string; isLanded: 
 
 export type TaskState = 'working' | 'waiting' | 'held' | 'done'
 
-// 우산 bin/orca-wait.sh 의 대기 알림 하나(done 끝 알림, stall 멈춤 알림).
+// One running `orca-wait.sh done|stall <worktree>` watcher (done: finished alarm, stall: stuck alarm).
 export type Wait = { pid: number; mode: 'done' | 'stall'; path: string }
 
 declare module 'claude-code' {
