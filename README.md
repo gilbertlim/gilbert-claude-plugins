@@ -11,7 +11,7 @@ Claude Code에서:
 ```
 /plugin marketplace add gilbertlim/gilbert-claude-plugins
 /plugin install crafting-html-pages@gilbert-claude-plugins
-/plugin install worktree-board@gilbert-claude-plugins
+/plugin install worktasks@gilbert-claude-plugins
 ```
 
 ## 플러그인 목록
@@ -19,7 +19,7 @@ Claude Code에서:
 | 플러그인 | 설명 |
 |---|---|
 | `crafting-html-pages` | HTML 페이지, 웹 UI, 문서형 HTML(PR/FAQ, 제안서, 리포트) 제작 규칙 |
-| `worktree-board` | Orca 워크트리와 에이전트 세션 진행을 상태줄과 좁은 패널에 띄우는 mod |
+| `worktasks` | This session's Orca tasks and wait alarms in the status line, a foldable band and /worktasks |
 
 ### crafting-html-pages
 
@@ -30,18 +30,17 @@ Claude Code에서:
 
 자세한 내용은 [`plugins/crafting-html-pages/skills/crafting-html-pages/SKILL.md`](plugins/crafting-html-pages/skills/crafting-html-pages/SKILL.md) 참고.
 
-### worktree-board
+### worktasks
 
-Orca 로 띄운 워크트리와 그 안의 에이전트 세션이 어디까지 왔는지를 30초마다 보여 준다.
+Shows how far the Orca tasks this session started have come, refreshed every 30 seconds. Nothing goes in the status line; the band holds it.
 
-- 상태줄: `3 worktrees(1 done, 2 in progress) | 2 need review`
-- `/worktree-board`: 오른쪽에 좁은 패널을 연다. 워크트리마다 레포, 브랜치, 커밋 수, 리뷰 차수, 터미널(세션)별 상태와 탭 제목
-- 진행 구분: 터미널이 돌거나 미커밋이 있으면 in progress, 리뷰어가 판정을 쓰는 중이면 reviewing, 승인이나 신뢰를 묻고 서 있으면 blocked, 커밋이 있고 다 쉬면 done
-- 리뷰 구분: 한 번도 안 받았거나 판정 뒤에 커밋이 올라왔으면 need review
+- Session tasks: the worktrees this session created with `dispatch.sh`; `land.sh` marks them done. A running agent or reviewer is working, a hold mark is held, a removed worktree is done, and the rest (waiting on review, a decision or land) is waiting. Alarms are running `orca-wait.sh done|stall <worktree>` watchers for those worktrees
+- Band: a compact row above the prompt (`Tasks  1 working  2 waiting …`); Details expands it to each task's worktree, commits and review, terminals and alarms, and Compact folds it back. Ponytail's band, if present, draws below it
+- `/worktasks`: the same detail as text. `hold|unhold|done|drop <name>` and `add <repo> <name>` edit the list; the model does the same with the `mcp__worktasks__track` tool
 
 필요한 것: Orca 의 `orca` CLI, 그리고 `orca-worktree-flow` 플러그인(`status.sh --summary` 를 읽는다). 터미널 상태는 Claude Code 화면의 끝 상태 줄(`✻ …(4m 53s` 는 돎, `✻ Worked for …` 는 쉼)로 정하므로 그 문구가 바뀌면 `hooks/parse.ts` 의 `screenState` 를 고친다.
 
-테스트: `claude plugin test plugins/worktree-board`
+테스트: `claude plugin test plugins/worktasks`
 
 ## 스킬이나 mod 추가하기
 

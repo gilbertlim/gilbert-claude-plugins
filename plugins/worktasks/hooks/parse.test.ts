@@ -1,6 +1,6 @@
 import { expect, test } from 'claude-code/testing'
 
-import { parseStatus, parseTerminals, parseWorktrees, progressOf, reviewLabel, screenState, sessionsOf, statusLine, worktreeIcon } from './parse'
+import { parseStatus, parseTerminals, parseWorktrees, reviewLabel, screenState, sessionsOf } from './parse'
 
 const TABLE = `워크트리                             커밋 미커밋 리뷰         터미널
 --------------------------------------------------------------------------------
@@ -42,29 +42,6 @@ test('워크트리 터미널만 골라 상태와 제목(앞 기호 뺌)을 붙�
   expect(listed.map(t => t.handle)).toEqual(['h1'])
   const [a] = parseWorktrees(TABLE)
   expect(sessionsOf(a!, [{ ...listed[0]!, state: 'working' }])).toEqual([{ state: 'working', title: '로그인 후 작업 재개' }])
-})
-
-test('진행: 돌면 in progress, 리뷰 중이면 reviewing, 커밋 있고 쉬면 done', () => {
-  const [a] = parseWorktrees(TABLE)
-  expect(progressOf({ ...a!, sessions: [{ state: 'working', title: '' }] })).toBe('in progress')
-  expect(progressOf({ ...a!, review: '2차 중', sessions: [{ state: 'working', title: '' }] })).toBe('reviewing')
-  expect(progressOf({ ...a!, sessions: [{ state: 'idle', title: '' }] })).toBe('done')
-})
-
-test('상태줄은 worktrees N(종류별 수) | need review M', () => {
-  const b = { ...parseStatus(TABLE + COUNTS, ''),
-    terminals: [{ path: '/u/orca/workspaces/shop-web/login-fix', title: '', state: 'working' }] }
-  expect(statusLine(b)).toBe('▶\uFE0F 2 worktrees(1 done, 1 in progress) | agents 1 working | 2 need review')
-  const idle = { ...b, terminals: [{ ...b.terminals[0]!, state: 'idle' }, { path: '/u/orca/workspaces/shop-api/add-cart', title: '', state: 'blocked' }] }
-  expect(statusLine(idle)).toBe('⏸\uFE0F 2 worktrees(1 done, 1 blocked) | agents 1 blocked, 1 idle | 2 need review')
-  expect(statusLine({ table: '', counts: {}, at: '', terminals: [], error: 'status.sh 없음' })).toBe('status.sh 없음')
-})
-
-test('워크트리 아이콘은 막힘 > 돎 > 쉼 > 터미널 없음', () => {
-  expect(worktreeIcon([{ state: 'idle' }, { state: 'blocked' }, { state: 'working' }])).toBe('⏸\uFE0F')
-  expect(worktreeIcon([{ state: 'idle' }, { state: 'working' }])).toBe('▶\uFE0F')
-  expect(worktreeIcon([{ state: 'idle' }])).toBe('⏺\uFE0F')
-  expect(worktreeIcon([])).toBe('⏹\uFE0F')
 })
 
 test('리뷰 칸을 영문 차수로 바꾼다', () => {
